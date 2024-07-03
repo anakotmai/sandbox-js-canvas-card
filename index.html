@@ -1,16 +1,920 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<script src="http://localhost:35729/livereload.js?snipver=1"></script>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title></title>
+	<title>A4 Printing</title>
+
+	<style type="text/css">
+		.badges-sheet{
+			display: grid;
+			grid-template-rows: 1fr 1fr;
+			grid-template-columns: 1fr 1fr 1fr 1fr;
+			height: 100%;
+			grid-gap: 4px;
+		}
+		.a-badge-wrap{
+			background: pink;
+			overflow: hidden;
+		}
+		.a-badge{
+			width: 100%;
+		}
+		@font-face {
+			font-family: 'AnakotmaiB';
+			src: url('anakotmai-b.woff2');
+		}
+		@font-face {
+			font-family: 'AnakotmaiM';
+			src: url('anakotmai-m.woff2');
+		}
+		@font-face {
+			font-family: 'AnakotmaiL';
+			src: url('anakotmai-l.woff2');
+		}
+		#control{
+			display: grid;
+			box-shadow: 0px 0px 10px #0003;
+			background: #fff;
+			right: 0;
+			bottom: 3.5rem;
+			position: fixed;
+			width: 400px;
+			max-height: calc(100dvh - 10rem);
+			overflow: auto;
+
+		}
+		#toggle{
+			display: flex;
+			width: 3rem;
+			height: 3rem;
+			justify-content: center;
+			align-items: center;
+			box-shadow: 0px 0px 10px #0003;
+			background: #fff;
+			right: 0;
+			bottom: 0;
+			position: fixed;
+			cursor: pointer;
+		}
+		#toggle svg{
+			width: 1rem;
+			transition: all .3s;
+			transform: rotate(-90deg);
+			opacity: .8;
+		}
+		#control[data-show="1"] svg{
+			transform: rotate(90deg);
+		}
+		fieldset{
+			margin-bottom: 1rem;
+		}
+		label{
+			display: grid;
+			width: 100%;
+			grid-template-columns: 7em auto;
+			grid-gap: 0.5rem;
+			margin-bottom: .5rem;
+			align-items: center;
+		}
+		legend {
+			font-weight: bold;
+		}
+		label > div{
+			text-align: right;
+		}
+		label > input,
+		label,
+		label > select{
+			font-size: 12px;
+		}
+		.input{
+			font-size: 1rem;
+			width: 100%;
+		}
+		.checkboxes {
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr 1fr;
+		}
+		.checkboxes label {
+			grid-template-columns: 2em auto;
+			grid-gap: 0.1em;
+		}
+		.checkboxes label > div{
+			text-align: left;
+		}
+		fieldset[data-showfield="false"]{
+			display: none;
+		}
+	</style>
+
+	<style type="text/css">
+		body {
+			margin: 0;
+			display: flex;
+			justify-content: center;
+			font-family: sans-serif;
+		}
+		
+		.sheet-outer.A4 .sheet { 
+			width: 210mm; 
+			height: 297mm;
+			
+			width: 296mm;
+			height: 210mm; 
+
+			box-sizing: border-box;
+			border: 0px solid red;
+		}
+		.sheet.padding-5mm {
+			padding: 5mm 
+		}
+		#control[data-show="-1"] #controlPanel{
+			display: none;
+		}
+		#controlPanel{
+			padding: 1rem;
+		}
+		@media screen {
+			body { 
+				background: #e0e0e0;
+			}
+
+			.sheet {
+				background: white;
+				box-shadow: 0 .5mm 2mm rgba(0,0,0,.3); 
+				margin: 5mm auto;
+			}
+		}
+		@media print {
+			@page {
+				size: A4;
+				size: A4 landscape;
+				margin: 0;
+			}
+			.sheet-outer.A4, .sheet-outer.A5.landscape { 
+				width: 210mm;
+				width: 297mm;
+			}
+			#control,#toggle{
+				display: none;
+			}
+		}
+	</style>
 </head>
 <body>
-Jabont Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	<div class="sheet-outer A4">
+		<section class="sheet padding-5mm">
+			<article class="badges-sheet">
+				<aside class="a-badge-wrap">
+					<canvas class="a-badge" id="badge-0"></canvas>
+				</aside>
+
+				<aside class="a-badge-wrap">
+					<canvas class="a-badge" id="badge-1"></canvas>
+				</aside>
+
+				<aside class="a-badge-wrap">
+					<canvas class="a-badge" id="badge-2"></canvas>
+				</aside>
+
+				<aside class="a-badge-wrap">
+					<canvas class="a-badge" id="badge-3"></canvas>
+				</aside>
+
+				<aside class="a-badge-wrap">
+					<canvas class="a-badge" id="badge-4"></canvas>
+				</aside>
+			</article>
+		</section>
+	</div>
+	<div id="control" data-show="-1">
+		<div id="controlPanel">
+			<div class="checkboxes">
+				<label>
+					<input type="checkbox" onclick="fieldCheck('f1',this.checked)">
+					<div>Field 1</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('f2',this.checked)">
+					<div>Field 2</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('f3',this.checked)">
+					<div>Field 3</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('f4',this.checked)">
+					<div>Field 4</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('t1',this.checked)">
+					<div>Text 1</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('t2',this.checked)">
+					<div>Text 2</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('t3',this.checked)">
+					<div>Text 3</div>
+				</label>
+				<label>
+					<input type="checkbox" onclick="fieldCheck('t4',this.checked)">
+					<div>Text 4</div>
+				</label>
+			</div>
+			<fieldset data-showfield="false" class="fieldset-f1">
+				<legend>Field 1:</legend>
+				<label>
+					<div>Size</div>
+					<input data-key="text.field_1.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.field_1.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.field_1.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.field_1.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.field_1.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.field_1.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.field_1.color" type="color">
+				</label>
+			</fieldset>
+			<fieldset data-showfield="false" class="fieldset-f2">
+				<legend>Field 2:</legend>
+				<label>
+					<div>Size</div>
+					<input data-key="text.field_2.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.field_1.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.field_1.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.field_2.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.field_2.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.field_2.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.field_2.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-f3">
+				<legend>Field 3:</legend>
+				<label>
+					<div>Size</div>
+					<input data-key="text.field_3.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.field_1.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.field_1.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.field_3.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.field_3.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.field_3.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.field_3.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-f4">
+				<legend>Field 4:</legend>
+				<label>
+					<div>Size</div>
+					<input data-key="text.field_4.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.field_1.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.field_1.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.field_4.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.field_4.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.field_4.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.field_4.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-t1">
+				<legend>Text Line 1:</legend>
+				<label>
+					<div>Text</div>
+					<input data-key="text_line_1" type="text">
+				</label>
+				<label>
+					<div>Size</div>
+					<input data-key="text.text_line_1.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.text_line_1.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.text_line_1.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.text_line_1.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.text_line_1.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.text_line_1.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.text_line_1.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-t2">
+				<legend>Text Line 2:</legend>
+				<label>
+					<div>Text</div>
+					<input data-key="text_line_2" type="text">
+				</label>
+				<label>
+					<div>Size</div>
+					<input data-key="text.text_line_2.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.text_line_2.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.text_line_2.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.text_line_2.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.text_line_2.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.text_line_2.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.text_line_2.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-t3">
+				<legend>Text Line 3:</legend>
+				<label>
+					<div>Text</div>
+					<input data-key="text_line_3" type="text">
+				</label>
+				<label>
+					<div>Size</div>
+					<input data-key="text.text_line_3.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.text_line_3.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.text_line_3.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.text_line_3.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.text_line_3.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.text_line_3.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.text_line_3.color" type="color">
+				</label>
+			</fieldset>
+
+			<fieldset data-showfield="false" class="fieldset-t4">
+				<legend>Text Line 4:</legend>
+				<label>
+					<div>Text</div>
+					<input data-key="text_line_4" type="text">
+				</label>
+				<label>
+					<div>Size</div>
+					<input data-key="text.text_line_4.size" type="number" step="1" min="0">
+				</label>
+				<label>
+					<div>Weight</div>
+					<select data-key="text.text_line_4.fw">
+						<option value="L">Light</option>
+						<option value="M">Medium</option>
+						<option value="B">Bold</option>
+					</select>
+				</label>
+				<label>
+					<div>Align</div>
+					<select data-key="text.text_line_4.align">
+						<option value="center">Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="text.text_line_4.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="text.text_line_4.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="text.text_line_4.opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Color</div>
+					<input data-key="text.text_line_4.color" type="color">
+				</label>
+			</fieldset>
+			
+			<br>
+			<fieldset>
+				<legend>QR:</legend>
+
+				<label>
+					<div>Width (%)</div>
+					<input data-key="qr.w" type="number" step="1">
+				</label>
+				<label>
+					<div>Top (%)</div>
+					<input data-key="qr.x" type="number" step="1">
+				</label>
+				<label>
+					<div>Left (%)</div>
+					<input data-key="qr.y" type="number" step="1">
+				</label>
+				<label>
+					<div>Opacity</div>
+					<input data-key="qr.qr_opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Ref Opacity</div>
+					<input data-key="qr.ref_opacity" type="number" step="1" min="0" max="100">
+				</label>
+				<label>
+					<div>Ref Color</div>
+					<input data-key="qr.color" type="color">
+				</label>
+			</fieldset>
+
+			<label>
+				<div>BG Image</div>
+				<input data-key="bg" type="url">
+			</label>
+		</div>
+		<div id="toggle" onclick="document.querySelector('#control').dataset.show *= -1">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		const font_akb_b = new FontFace('akb', 'url(anakotmai-b.woff2)');
+		const font_akb_m = new FontFace('akb', 'url(anakotmai-m.woff2)');
+		const font_akb_l = new FontFace('akb', 'url(anakotmai-l.woff2)');
+		
+		let event_data = {
+			text_line_1 : 'กิจกรรมสุดจี๊ด แห่งก้าวไกล',
+			text_line_2 : 'ก้าวแคมป์ครั้งที่ 2',
+			text_line_3 : 'วันที่ 10 มีนาคม 2564',
+			text_line_4 : 'ผู้ร่วมงาน',
+			bg: 'https://images.unsplash.com/photo-1579547621113-e4bb2a19bdd6?q=80&w=2739&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+			qr:{
+				x:25,
+				y:52,
+				w:40,
+				w_pc:null,
+				color:"#ffff00",
+				ref_opacity:100,
+				qr_opacity:100,
+			},
+			text:{
+				text_line_1:{
+					color:"#ffffff",
+					opacity:100,
+					align:"left",
+					size:1,
+					fw:"L",
+					x:5,
+					y:5,
+				},
+				text_line_2:{
+					color:"#ffffff",
+					opacity:100,
+					align:"left",
+					size:1,
+					fw:"M",
+					x:5,
+					y:10,
+				},
+				text_line_3:{
+					color:"#ffffff",
+					opacity:50,
+					align:"left",
+					size:1,
+					fw:"B",
+					x:5,
+					y:15,
+				},
+				text_line_4:{
+					color:"#ffff00",
+					opacity:80,
+					align:"center",
+					size:1,
+					fw:"M",
+					x:50,
+					y:25,
+				},
+				field_1:{
+					color:"#ffffff",
+					opacity:100,
+					align:"center",
+					size:2.5,
+					fw:"M",
+					x:50,
+					y:35,
+				},
+				field_2:{
+					color:"#ffffff",
+					opacity:80,
+					align:"center",
+					size:1.2,
+					fw:"M",
+					x:50,
+					y:43,
+				},
+				field_3:{
+					color:"#cccccc",
+					opacity:100,
+					align:"left",
+					size:1.2,
+					fw:"M",
+					x:5,
+					y:94,
+				},
+				field_4:{
+					color:"#ffffff",
+					opacity:100,
+					align:"right",
+					size:1.2,
+					fw:"L",
+					x:95,
+					y:94,
+				},
+				
+			}
+		}
+		let submit_data = [
+		{
+			ref: 34535,
+			field_1 : 'จาบอน',
+			field_2 : 'จามิกร เรืองปัญญาวุฒิ',
+			field_3 : '🍊 สมาชิกพรรค',
+			field_4 : 'ระยอง',
+		},
+		{
+			ref: 34536,
+			field_1 : 'บิ๊ก',
+			field_2 : 'บิ๊กบิ๊ก ทรัพย์สมบูรณ์',
+			field_3 : '🍊 สมาชิกพรรค',
+			field_4 : 'ระยอง',
+		},
+		{
+			ref: 3409,
+			field_1 : 'น้ำตาลปี๊บ',
+			field_2 : 'สิริโสภา สวยจริงจริงเลยนะเธอ',
+			field_3 : '🍊 สมาชิกพรรค',
+			field_4 : 'ร้อยเอ็ด',
+		},
+		{
+			ref: 3403,
+			field_1 : 'อาโปยซูโต๊ยหน่อ',
+			field_2 : 'พริกเพ็ช เดช',
+			field_3 : '🍊 สมาชิกพรรค',
+			field_4 : 'เชียงใหม่',
+		},
+		{
+			ref: 3403,
+			field_1 : 'ตี้',
+			field_2 : 'นฤเบศ ศรีราชา',
+			field_3 : '🍊 สมาชิกพรรค',
+			field_4 : 'กทม',
+		}
+		]
+		let badge_setting = {
+			height:140.9*10,
+			width:100*10,
+		}
+
+		function renderBadgesAll() {
+			for(let i in submit_data){
+				renderBadge(i)
+			}
+		}
+		function renderBadge(i){
+
+			event_data.qr.w_pc = event_data.qr.w*badge_setting.width*0.01
+
+			let badge = document.querySelector('#badge-'+i)
+			let ctx = badge.getContext('2d')
+			let s = submit_data[i]
+
+			badge.width = badge_setting.width
+			badge.height = badge_setting.height
+			badge.style.background = "#ddd"
+
+			let bg = new Image()
+			bg.src = event_data.bg
+
+			let qr = new Image()
+			qr.src = `https://api.qrserver.com/v1/create-qr-code/?data=`+s.ref
+
+			bg.onload = function (){qr.onload = function (){
+				ctx.drawImage(bg,0,0,badge_setting.width,badge_setting.height)
+
+				let qrDrawPercentX = event_data.qr.x*(badge_setting.width/100)
+				let qrDrawPercentY = event_data.qr.y*(badge_setting.height/100)
+
+				ctx.fillStyle = '#fff'
+				ctx.globalAlpha = event_data.qr.qr_opacity/100
+				ctx.fillRect(
+					qrDrawPercentX,
+					qrDrawPercentY,
+					1.1*event_data.qr.w_pc,
+					1.1*event_data.qr.w_pc,
+					);
+				ctx.drawImage(
+					qr,
+					qrDrawPercentX+(event_data.qr.w_pc*0.05),
+					qrDrawPercentY+(event_data.qr.w_pc*0.05),
+					event_data.qr.w_pc,
+					event_data.qr.w_pc,
+					)
+
+				let qrRefSize = event_data.qr.w_pc*0.12;
+				let qrRefX = qrDrawPercentX+((event_data.qr.w_pc*0.1+event_data.qr.w_pc)/2);
+				let qrRefY = qrDrawPercentY+qrRefSize+(1.15*event_data.qr.w_pc);
+
+				ctx.globalAlpha = event_data.qr.ref_opacity/100
+				ctx.font = qrRefSize+"px AnakotmaiM"
+				ctx.textAlign = "center"
+				ctx.fillStyle = event_data.qr.color
+				ctx.fillText(""+s.ref,qrRefX,qrRefY)
+
+				// Text Line 1
+				ctx.globalAlpha = event_data.text.text_line_1.opacity/100
+				ctx.font = (event_data.text.text_line_1.size*50)+"px Anakotmai"+event_data.text.text_line_1.fw
+				ctx.textAlign = event_data.text.text_line_1.align
+				ctx.fillStyle = event_data.text.text_line_1.color
+				fillTextX = badge_setting.width/100*event_data.text.text_line_1.x
+				fillTextY = (event_data.text.text_line_1.y*badge_setting.height*0.01+((event_data.text.text_line_1.size*50)/2))
+				ctx.fillText(event_data.text_line_1,fillTextX,fillTextY)
+
+				// Text Line 2
+				ctx.globalAlpha = event_data.text.text_line_2.opacity/100
+				ctx.font = (event_data.text.text_line_2.size*50)+"px Anakotmai"+event_data.text.text_line_2.fw
+				ctx.textAlign = event_data.text.text_line_2.align
+				ctx.fillStyle = event_data.text.text_line_2.color
+				fillTextX = badge_setting.width/100*event_data.text.text_line_2.x
+				fillTextY = (event_data.text.text_line_2.y*badge_setting.height*0.01+((event_data.text.text_line_2.size*50)/2))
+				ctx.fillText(event_data.text_line_2,fillTextX,fillTextY)
+
+				// Text Line 3
+				ctx.globalAlpha = event_data.text.text_line_3.opacity/100
+				ctx.font = (event_data.text.text_line_3.size*50)+"px Anakotmai"+event_data.text.text_line_3.fw
+				ctx.textAlign = event_data.text.text_line_3.align
+				ctx.fillStyle = event_data.text.text_line_3.color
+				fillTextX = badge_setting.width/100*event_data.text.text_line_3.x
+				fillTextY = (event_data.text.text_line_3.y*badge_setting.height*0.01+((event_data.text.text_line_3.size*50)/2))
+				ctx.fillText(event_data.text_line_3,fillTextX,fillTextY)
+
+				// Text Line 4
+				ctx.globalAlpha = event_data.text.text_line_4.opacity/100
+				ctx.font = (event_data.text.text_line_4.size*50)+"px Anakotmai"+event_data.text.text_line_4.fw
+				ctx.textAlign = event_data.text.text_line_4.align
+				ctx.fillStyle = event_data.text.text_line_4.color
+				fillTextX = badge_setting.width/100*event_data.text.text_line_4.x
+				fillTextY = (event_data.text.text_line_4.y*badge_setting.height*0.01+((event_data.text.text_line_4.size*50)/2))
+				ctx.fillText(event_data.text_line_4,fillTextX,fillTextY)
+
+				// Field 1
+				ctx.globalAlpha = event_data.text.field_1.opacity/100
+				ctx.font = (event_data.text.field_1.size*50)+"px Anakotmai"+event_data.text.field_1.fw
+				ctx.textAlign = event_data.text.field_1.align
+				ctx.fillStyle = event_data.text.field_1.color
+				fillTextX = badge_setting.width/100*event_data.text.field_1.x
+				fillTextY = (event_data.text.field_1.y*badge_setting.height*0.01+((event_data.text.field_1.size*50)/2))
+				ctx.fillText(s.field_1,fillTextX,fillTextY)
+
+				// Field 2
+				ctx.globalAlpha = event_data.text.field_2.opacity/100
+				ctx.font = (event_data.text.field_2.size*50)+"px Anakotmai"+event_data.text.field_2.fw
+				ctx.textAlign = event_data.text.field_2.align
+				ctx.fillStyle = event_data.text.field_2.color
+				fillTextX = badge_setting.width/100*event_data.text.field_2.x
+				fillTextY = (event_data.text.field_2.y*badge_setting.height*0.01+((event_data.text.field_2.size*50)/2))
+				ctx.fillText(s.field_2,fillTextX,fillTextY)
+
+				// Field 3
+				ctx.globalAlpha = event_data.text.field_3.opacity/100
+				ctx.font = (event_data.text.field_3.size*50)+"px Anakotmai"+event_data.text.field_3.fw
+				ctx.textAlign = event_data.text.field_3.align
+				ctx.fillStyle = event_data.text.field_3.color
+				fillTextX = badge_setting.width/100*event_data.text.field_3.x
+				fillTextY = (event_data.text.field_3.y*badge_setting.height*0.01+((event_data.text.field_3.size*50)/2))
+				ctx.fillText(s.field_3,fillTextX,fillTextY)
+
+				// Field 4
+				ctx.globalAlpha = event_data.text.field_4.opacity/100
+				ctx.font = (event_data.text.field_4.size*50)+"px Anakotmai"+event_data.text.field_4.fw
+				ctx.textAlign = event_data.text.field_4.align
+				ctx.fillStyle = event_data.text.field_4.color
+				fillTextX = badge_setting.width/100*event_data.text.field_4.x
+				fillTextY = (event_data.text.field_4.y*badge_setting.height*0.01+((event_data.text.field_4.size*50)/2))
+				ctx.fillText(s.field_4,fillTextX,fillTextY)
+
+			}}
+		}
+		font_akb_b.load().then((font) => {
+			document.fonts.add(font);
+			font_akb_m.load().then((font) => {
+				document.fonts.add(font);
+				font_akb_l.load().then((font) => {
+					document.fonts.add(font);
+					renderBadgesAll()
+					getValue()
+				});
+			});
+		});
+
+		function getValue(){
+			const inp = document.querySelectorAll('[data-key]')
+			for(let i of inp){
+				let key = i.dataset.key
+				key = key.split('.')
+				let val = event_data
+				for(k of key){
+					val = val[k]
+				}
+				i.value = val
+				i.setAttribute('oninput','changeValue(this)')
+			}
+		}
+
+		let waitingChange = null
+
+		function changeValue(el){
+			clearTimeout(waitingChange)
+			const val = el.value
+			let key = el.dataset.key
+			const cmd = `event_data.${key} = "${val}"`
+			let data = eval(cmd);
+			
+			waitingChange = setTimeout(()=>{
+				renderBadgesAll()	
+			},500)
+		}
+
+		function fieldCheck(key,val){
+			let el = document.querySelector('.fieldset-'+key)
+			el.dataset.showfield = val
+			console.log(el)
+			console.log(val)
+		}
+		
+	</script>
+
 </body>
 </html>

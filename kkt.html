@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="http://localhost:35729/livereload.js?snipver=1"></script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>A4 Printing</title>
+
+	<style type="text/css">
+		
+		@font-face {
+			font-family: 'Sarabun';
+			src: url('THSarabunNew.ttf');
+		}
+		
+	</style>
+
+	<style type="text/css">
+		body {
+			margin: 0;
+			display: flex;
+			justify-content: center;
+			font-family: sans-serif;
+		}
+		
+		.sheet-outer.A4 .sheet { 
+			width: 210mm; 
+			height: 297mm;
+			
+			width: 296mm;
+			height: 210mm; 
+
+			box-sizing: border-box;
+			border: 0px solid red;
+		}
+		.sheet.padding-5mm {
+			padding: 5mm 
+		}
+		
+		@media screen {
+			body { 
+				background: #e0e0e0;
+			}
+
+			.sheet {
+				background: white;
+				box-shadow: 0 .5mm 2mm rgba(0,0,0,.3); 
+				margin: 5mm auto;
+			}
+		}
+		@media print {
+			@page {
+				size: A4;
+				size: A4 landscape;
+				margin: 0;
+			}
+			.sheet-outer.A4, .sheet-outer.A5.landscape { 
+				width: 210mm;
+				width: 297mm;
+			}
+			
+		}
+	</style>
+
+	<style type="text/css">
+		#kkt-paper-bg{
+			width: 1px;
+			height: 1px;
+			opacity: 0;
+		}
+		.kkt-paper-wrap {
+			aspect-ratio: 2702/2032;
+			height: 95%;
+		}
+		.sheet {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="main" class="sheet-outer A4"></div>
+	
+
+	<script type="text/javascript">
+		function $(s) {
+			return document.querySelector(s)
+		}
+		function $$(s) {
+			return document.querySelectorAll(s)
+		}
+		const sarabun = new FontFace('sarabun', 'url(THSarabunNew.ttf)');
+		const sarabun_b = new FontFace('sarabun_b', 'url(THSarabunNew_b.ttf)');
+		
+		const kkt_paper = 'https://act.moveforwardparty.org/wp-content/themes/jb-pixie/img/form-kkt-4.png';
+		const kkt_paper_size = {
+			w:2702,
+			h:2032,
+		}
+		let event_data = {
+			name:'กิจกรรมคณาญาติโมเต็ลโต๋เต๋ เซ็กส์ฟาสต์ฟู้ดโพลารอยด์อิออนคาเฟ่ บลูเบอร์รี่ ครั้งที่ 12',
+			place: 'โรงแรมยโสธรปุระ เบิกบานกลางพสุธา ดอกหญ้าแห่งยโสธร',
+			d: '19',
+			m: 'พฤศจิกายน',
+			y: '2567',
+			date:'19 พฤศจิกายน 2567'
+		}
+		let submit_data = []
+		let submit_all = [
+		{
+			full_name:'นายจามิกร ผิวละออง นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130 71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130 71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130 71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'MR Chamo ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'216/15 หมู่ 10 หมู่บ้านศิริทรัพย์ (พุทธสาคร-แคราย) ซอย 3 คลองมะเดื่อ กระทุ่มแบน สมุทรสาคร 74110 คลองมะเดื่อ กระทุ่มแบน สมุทรสาคร 74110',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},{
+			full_name:'นายจามิกร ผิวละออง',
+			citizen_id:'1-21-02-00040-74-6',
+			address:'71/4 ม.1 ต.พลา อ.บ้านฉาง จ.ระยอง 21130',
+			sign:'12345'
+		},
+		]
+		let submitSize = submit_all.length
+		let name_per_page = 15
+		let pageIndex = 0
+		let noPage = 0
+		for(let i = 0 ; i<submitSize;i++){
+			if (noPage == name_per_page) {
+				pageIndex++
+				noPage = 0
+			}
+
+			if (submit_data[pageIndex] == undefined) {
+				submit_data[pageIndex] = []
+			}
+
+			submit_data[pageIndex][noPage] = submit_all[i]
+			submit_data[pageIndex][noPage]['no'] = i+1
+			submit_data[pageIndex][noPage]['no_page'] = noPage+1
+			noPage++
+		}
+		console.log(submit_data)
+		let pageSize = submit_data.length
+		
+		function renderPage(){
+			let pHtml = ''
+			for(let p=0;p<pageSize;p++){
+				pHtml += `<section class="sheet padding-5mm" data-page-number="${p}"><canvas class="kkt-paper-wrap" id="kkt-${p}"></canvas></section>`
+			}
+			$('#main').innerHTML = pHtml
+			setTimeout(()=>{
+				
+				for(let p=0;p<pageSize;p++){
+					renderKKTdata(p)
+				}
+			},100)
+		}
+		function renderKKTdata(i){
+			let canvas = document.querySelector('#kkt-'+i)
+			let ctx = canvas.getContext('2d')
+			ctx.canvas.width  = kkt_paper_size.w;
+			ctx.canvas.height = kkt_paper_size.h;
+			let bg = new Image()
+			bg.src = kkt_paper
+			bg.onload = function (){
+				ctx.drawImage(bg,0,0,kkt_paper_size.w,kkt_paper_size.h)
+
+				ctx.font = "60px sarabun"
+				ctx.textAlign = "left"
+				ctx.fillStyle = 'black'
+				ctx.fillText(event_data.name,720,140)
+				ctx.fillText(event_data.place,670,235)
+				ctx.fillText(event_data.date,1770,235)
+				let y = 0
+				for(let key in submit_data[i]){
+					let v = submit_data[i][key]
+					console.log(v)
+					ctx.font = "40px sarabun"
+					ctx.textAlign = "center"
+					ctx.fillText(v.no,50,415+y)
+
+					ctx.textAlign = "left"
+					// ctx.fillText(v.full_name,120,415+y)
+					drawTextWithLineBreaks(ctx,v.full_name,120,415+y,650)
+
+					ctx.fillText(v.citizen_id,850,415+y)
+
+					// ctx.fillText(v.address,1180,415+y)
+					drawTextWithLineBreaks(ctx,v.address,1180,415+y,1250)
+					
+					y += 92
+				}
+			}
+		}
+		sarabun.load().then((font) => {
+			sarabun_b.load().then((font) => {
+				renderPage()
+			})
+		})
+		
+
+		
+
+	</script>
+	
+
+	<script type="text/javascript">
+		function drawTextWithLineBreaks(context, text, x, y, maxWidth) {
+			var words = text.split(' ');
+			console.log(words)
+			let dfY = y
+			var line = '';
+			var lineHeight = 36;
+			let lineCount = 0
+			for (var i = 0; i < words.length; i++) {
+				var testLine = line + words[i] + ' ';
+				var metrics = context.measureText(testLine);
+				var testWidth = metrics.width;
+				if (testWidth > maxWidth && i > 0) {
+					line = words[i] + ' ';
+					y += lineHeight;
+					lineCount++
+				} else {
+					line = testLine;
+				}
+			}
+			y = dfY
+			if (lineCount>0) {
+				y = y-16
+			}
+			var line = '';
+			for (var i = 0; i < words.length; i++) {
+				var testLine = line + words[i] + ' ';
+				var metrics = context.measureText(testLine);
+				var testWidth = metrics.width;
+				if (testWidth > maxWidth && i > 0) {
+					context.fillText(line, x, y);
+					line = words[i] + ' ';
+					y += lineHeight;
+				} else {
+					line = testLine;
+				}
+			}
+			context.fillText(line, x, y);
+		}
+	</script>
+
+</body>
+</html>
